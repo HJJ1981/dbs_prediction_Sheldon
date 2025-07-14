@@ -3,3 +3,4 @@ gunicorn
 groq
 joblib
 scikit-learn
+python-dotenv
