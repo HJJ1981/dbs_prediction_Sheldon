@@ -6,12 +6,14 @@
 </head>
 <body>
     <div class="container">
-        <h2>LLAMA reply : {{r}}</h2>
-        <form action="/main" method="post">
-            <input type="submit" value="Main">
+    <h2>Deepseek Chatbot via Groq</h2>
+        <form action="/deepseek_reply" method="post">
+            <p>Please enter your query </p>
+            <input type="text" name="q" required>
+            <input type="submit" value="Enter">
         </form>
-
+        
         <br>
         <a href="/">← Back to Home</a>
     </div>
-</body>
+</body></html>
