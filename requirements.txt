@@ -4,3 +4,5 @@ groq
 joblib
 scikit-learn
 python-dotenv
+requests
+openai

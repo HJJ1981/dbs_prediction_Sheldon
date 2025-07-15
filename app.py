@@ -4,15 +4,20 @@ import os
 from flask import Flask, render_template, request
 import joblib
 from groq import Groq
+from openai import OpenAI
 from dotenv import load_dotenv
 
 # Load environment variables from .env file (for local development)
 load_dotenv()
 
-# Get API key from environment variables
+# Get API keys from environment variables
 GROQ_API_KEY = os.getenv('GROQ_API_KEY')
 if not GROQ_API_KEY:
     raise ValueError("GROQ_API_KEY environment variable is not set")
+
+SEALION_API_KEY = os.getenv('SEA_LION_API_KEY')
+if not SEALION_API_KEY:
+    raise ValueError("SEA_LION_API_KEY environment variable is not set")
 
 app = Flask(__name__)
 
@@ -75,6 +80,33 @@ def deepseek_reply():
         ]
     )
     return render_template("deepseek_reply.html", r=completion.choices[0].message.content)
+
+
+@app.route("/sealion", methods=["GET", "POST"])
+def sealion():
+    """Render the SEA-LION chat interface."""
+    return render_template("sealion.html")
+
+
+@app.route("/sealion_reply", methods=["GET", "POST"])
+def sealion_reply():
+    """Process SEA-LION chat request and return response."""
+    q = request.form.get("q")
+    # load model
+    client = OpenAI(
+        api_key=SEALION_API_KEY,
+        base_url="https://api.sea-lion.ai/v1"
+    )
+    completion = client.chat.completions.create(
+        model="aisingapore/Gemma-SEA-LION-v3-9B-IT",
+        messages=[
+            {
+                "role": "user",
+                "content": q
+            }
+        ]
+    )
+    return render_template("sealion_reply.html", r=completion.choices[0].message.content)
 
 
 @app.route("/dbs", methods=["GET", "POST"])
