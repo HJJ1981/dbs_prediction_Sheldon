@@ -156,10 +156,27 @@ def telegram():
     return render_template("telegram.html", status=status)
 
 
+@app.route("/stop_telegram", methods=["GET", "POST"])
+def stop_telegram():
+    """Stop the Telegram chatbot."""
+    domain_url = 'https://dbs-prediction-cvhg.onrender.com'
+    # The following line is used to delete the existing webhook URL for the Telegram bot
+    delete_webhook_url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/deleteWebhook"
+    webhook_response = requests.post(delete_webhook_url, json={
+                  "url": domain_url, "drop_pending_updates": True})
+
+    if webhook_response == 200:
+        # set status message
+        status = "The telegram bot is now stopped."
+    else:
+        status = "Failed to stop the telegram bot. Please check the logs."
+
+    return render_template("telegram.html", status=status)
+
+
 @app.route("/webhook", methods=["GET", "POST"])
 def webhook():
-
-    # This endpoint will be called by Telegram when a new message is received
+    """This endpoint will be called by Telegram when a new message is received"""
     update = request.get_json()
     if "message" in update and "text" in update["message"]:
         # Extract the chat ID and message text from the update
