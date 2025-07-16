@@ -6,6 +6,7 @@ import joblib
 from groq import Groq
 from openai import OpenAI
 from dotenv import load_dotenv
+import requests
 
 # Load environment variables from .env file (for local development)
 load_dotenv()
@@ -18,6 +19,10 @@ if not GROQ_API_KEY:
 SEALION_API_KEY = os.getenv('SEA_LION_API_KEY')
 if not SEALION_API_KEY:
     raise ValueError("SEA_LION_API_KEY environment variable is not set")
+
+TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+if not TELEGRAM_BOT_TOKEN:
+    raise ValueError("TELEGRAM_BOT_TOKEN environment variable is not set")
 
 app = Flask(__name__)
 
@@ -129,5 +134,33 @@ def prediction():
     return render_template("prediction.html", r=pred)
 
 
+@app.route("/telegram", methods=["GET", "POST"])
+def telegram():
+    """Render the Telegram chat interface."""
+    domain_url = 'https://dbs-prediction-cvhg.onrender.com'
+    # The following line is used to delete the existing webhook URL for the Telegram bot
+    delete_webhook_url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/deleteWebhook"
+    requests.post(delete_webhook_url, json={
+                  "url": domain_url, "drop_pending_updates": True})
+    # Set the webhook URL for the Telegram bot
+    set_webhook_url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/setWebhook?url={domain_url}/webhook"
+    webhook_response = requests.post(
+        set_webhook_url, json={"url": domain_url, "drop_pending_updates": True})
+
+    if webhook_response.status_code == 200:
+        # set status message
+        status = "The telegram bot is running. Please check with the telegram bot. @SheldonGenAiBot"
+    else:
+        status = "Failed to start the telegram bot. Please check the logs."
+
+    return render_template("telegram.html", status=status)
+
+
 if __name__ == "__main__":
     app.run()
+
+# Set webhook for Telegram bot
+# https://api.telegram.org/bot{groq_telegram_token}/setWebhook?url ={domain_url}/webhook
+
+# Delete webhook for Telegram bot
+# https: //api.telegram.org/bot%7Bgroq_telegram_token%7D/deleteWebhook
