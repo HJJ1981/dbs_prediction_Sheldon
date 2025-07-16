@@ -156,6 +156,38 @@ def telegram():
     return render_template("telegram.html", status=status)
 
 
+@app.route("/webhook", methods=["GET", "POST"])
+def webhook():
+
+    # This endpoint will be called by Telegram when a new message is received
+    update = request.get_json()
+    if "message" in update and "text" in update["message"]:
+        # Extract the chat ID and message text from the update
+        chat_id = update["message"]["chat"]["id"]
+        query = update["message"]["text"]
+
+        # Pass the query to the Groq model
+        client = Groq()
+        completion_ds = client.chat.completions.create(
+            model="deepseek-r1-distill-llama-70b",
+            messages=[
+                {
+                    "role": "user",
+                    "content": query
+                }
+            ]
+        )
+        response_message = completion_ds.choices[0].message.content
+
+        # Send the response back to the Telegram chat
+        send_message_url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+        requests.post(send_message_url, json={
+            "chat_id": chat_id,
+            "text": response_message
+        })
+    return ('ok', 200)
+
+
 if __name__ == "__main__":
     app.run()
 
