@@ -1,5 +1,7 @@
 """Flask web application for DBS prediction and LLaMA chatbot."""
 
+from sentence_transformers import SentenceTransformer
+import numpy as np
 import os
 from flask import Flask, render_template, request
 import joblib
@@ -24,7 +26,42 @@ TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 if not TELEGRAM_BOT_TOKEN:
     raise ValueError("TELEGRAM_BOT_TOKEN environment variable is not set")
 
+
+# Import for BERT spam classifier
+
 app = Flask(__name__)
+
+# Load BERT encoder and classifier at startup
+try:
+    bert_encoder = SentenceTransformer('bert-base-nli-mean-tokens')
+    bert_classifier = joblib.load("model_bert_lr.pkl")
+except Exception as e:
+    bert_encoder = None
+    bert_classifier = None
+    print(f"[Warning] Could not load BERT spam classifier: {e}")
+
+
+@app.route("/spam", methods=["GET", "POST"])
+def spam():
+    """Render the spam prediction interface."""
+    return render_template("spam.html")
+
+
+@app.route("/spam_predict", methods=["POST"])
+def spam_predict():
+    """Predict if a message is spam using BERT model."""
+    message = request.form.get("message")
+    if not message:
+        return render_template("spam.html", result="Please enter a message.")
+    if bert_encoder is None or bert_classifier is None:
+        return render_template("spam.html", result="Spam classifier not available.")
+    try:
+        X_emb = bert_encoder.encode([message])
+        pred = bert_classifier.predict(X_emb)
+        result = "Not Spam" if pred[0] == "ham" else "Spam"
+    except Exception as e:
+        result = f"Error: {e}"
+    return render_template("spam.html", result=result, message=message)
 
 
 @app.route("/", methods=["GET", "POST"])
