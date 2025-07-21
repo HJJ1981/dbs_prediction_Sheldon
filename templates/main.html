@@ -1,34 +1,29 @@
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link
-    rel="stylesheet"
-    href="{{ url_for('static',
-        filename='styles.css') }}"
-  />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static',
+        filename='styles.css') }}">
 </head>
 <body>
-  <div class="container">
+    <div class="container">
     <h2>Main</h2>
-    <form action="/llama" method="post">
-      <input type="submit" value="Llama chatbot via groq" />
-    </form>
-    <form action="/deepseek" method="post">
-      <input type="submit" value="Deepseek chatbot via groq" />
-    </form>
-    <form action="/sealion" method="post">
-      <input type="submit" value="SEA-LION chatbot" />
-    </form>
-    <form action="/dbs" method="post">
-      <input type="submit" value="Predict DBS price" />
-    </form>
-    <form action="/spam" method="post">
-      <input type="submit" value="Spam Message Classifier" />
-    </form>
-    <form action="/telegram" method="post">
-      <input type="submit" value="Start Telegram chatbot" />
-    </form>
-    <form action="/stop_telegram" method="post">
-      <input type="submit" value="Stop Telegram chatbot" />
-    </form>
-  </div>
+        <form action="/llama" method="post">
+            <input type="submit" value="Llama chatbot via groq">
+        </form>
+        <form action="/deepseek" method="post">
+            <input type="submit" value="Deepseek chatbot via groq">
+        </form>
+        <form action="/sealion" method="post">
+            <input type="submit" value="SEA-LION chatbot">
+        </form>
+        <form action="/dbs" method="post">
+            <input type="submit" value="Predict DBS price">
+        </form>
+        <form action="/telegram" method="post">
+            <input type="submit" value="Start Telegram chatbot">
+        </form>
+        <form action="/stop_telegram" method="post">
+            <input type="submit" value="Stop Telegram chatbot">
+        </form>
+    </div>
 </body>
