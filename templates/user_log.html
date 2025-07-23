@@ -1,0 +1,38 @@
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='styles.css') }}"
+  />
+</head>
+<body>
+  <div class="container">
+    <h2>User Log</h2>
+    <!-- User log content will go here -->
+    {% if users %}
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Timestamp</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in users %}
+          <tr>
+            <td>{{ user[0] }}</td>
+            <td>{{ user[1] }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>No users found in the database.</p>
+    {% endif %}
+    <form action="/main" method="get">
+      <input type="submit" value="Back to Main" />
+    </form>        
+    <br>
+    <a href="/">← Back to Home</a>
+  </div>
+</body>

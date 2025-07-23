@@ -1,6 +1,7 @@
 """Flask web application for DBS prediction and LLaMA chatbot."""
 
 import os
+import sqlite3
 from flask import Flask, render_template, request
 import joblib
 from groq import Groq
@@ -36,6 +37,17 @@ def index():
 @app.route("/main", methods=["GET", "POST"])
 def main():
     """Render the main page."""
+    name = request.form.get("q")
+    if name:
+        try:
+            conn = sqlite3.connect("user.db")
+            cursor = conn.cursor()
+            # Insert the name with the current timestamp
+            cursor.execute("INSERT INTO user (name, timestamp) VALUES (?, datetime('now'))", (name,))
+            conn.commit()
+            conn.close()
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
     return render_template("main.html")
 
 
@@ -204,6 +216,36 @@ def webhook():
             "text": response_message
         })
     return ('ok', 200)
+
+
+@app.route("/user_log", methods=["GET", "POST"])
+def user_log():
+    """Display user logs from the database."""
+    users = []
+    try:
+        conn = sqlite3.connect("user.db")
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM user")
+        users = cursor.fetchall()
+        conn.close()
+    except sqlite3.Error:
+        users = []
+    return render_template("user_log.html", users=users)
+
+
+@app.route("/delete_log", methods=["GET", "POST"])
+def delete_log():
+    """Delete all user logs from the database."""
+    try:
+        conn = sqlite3.connect("user.db")
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM user")
+        conn.commit()
+        conn.close()
+        status = "All user logs have been deleted."
+    except sqlite3.Error as e:
+        status = f"Error deleting logs: {e}"
+    return render_template("delete_log.html", status=status)
 
 
 if __name__ == "__main__":
