@@ -1,0 +1,74 @@
+<head>
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static',
+        filename='styles.css') }}">
+    <style>
+        .image-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px 0;
+        }
+        .image-pair {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .image-section {
+            text-align: center;
+            flex: 1;
+            min-width: 250px;
+        }
+        .result-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .image-label {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        @media (max-width: 768px) {
+            .image-pair {
+                flex-direction: column;
+            }
+            .image-section {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Sepia Filter Results</h2>
+        
+        <div class="image-container">
+            <div class="image-pair">
+                <div class="image-section">
+                    <div class="image-label">Original Image</div>
+                    <img src="{{ original_image }}" alt="Original Image" class="result-image">
+                </div>
+                <div class="image-section">
+                    <div class="image-label">Sepia Filtered</div>
+                    <img src="{{ sepia_image }}" alt="Sepia Filtered Image" class="result-image">
+                </div>
+            </div>
+        </div>
+        
+        <form action="/sepia" method="post">
+            <input type="submit" value="Upload Another Image">
+        </form>
+        
+        <form action="/main" method="post">
+            <input type="submit" value="Back to Main">
+        </form>
+        
+        <br>
+        <a href="/">← Back to Home</a>
+    </div>
+</body>

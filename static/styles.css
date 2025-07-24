@@ -59,6 +59,20 @@ input, button {
     font-size: 16px;
 }
 
+input[type="file"] {
+    padding: 8px;
+    background-color: #f8f9fa;
+    border: 2px dashed #007bff;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+}
+
+input[type="file"]:hover {
+    background-color: #e9ecef;
+    border-color: #0056b3;
+}
+
 button {
     background-color: #007bff;
     color: white;

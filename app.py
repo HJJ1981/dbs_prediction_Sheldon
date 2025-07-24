@@ -2,12 +2,16 @@
 
 import os
 import sqlite3
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 import joblib
 from groq import Groq
 from openai import OpenAI
 from dotenv import load_dotenv
 import requests
+import numpy as np
+from PIL import Image
+import io
+import base64
 
 # Load environment variables from .env file (for local development)
 load_dotenv()
@@ -246,6 +250,69 @@ def delete_log():
     except sqlite3.Error as e:
         status = f"Error deleting logs: {e}"
     return render_template("delete_log.html", status=status)
+
+
+def sepia_filter(input_img):
+    """Apply sepia filter to an image."""
+    sepia_matrix = np.array([
+        [0.393, 0.769, 0.189],
+        [0.349, 0.686, 0.168],
+        [0.272, 0.534, 0.131]
+    ])
+    sepia_img = input_img.dot(sepia_matrix.T)
+    sepia_img = np.clip(sepia_img, 0, 255)
+    return sepia_img.astype(np.uint8)
+
+
+@app.route("/sepia", methods=["GET", "POST"])
+def sepia():
+    """Render the sepia filter interface."""
+    return render_template("sepia.html")
+
+
+@app.route("/sepia_result", methods=["POST"])
+def sepia_result():
+    """Process uploaded image and apply sepia filter."""
+    if 'image' not in request.files:
+        return redirect(url_for('sepia'))
+    
+    file = request.files['image']
+    if file.filename == '':
+        return redirect(url_for('sepia'))
+    
+    try:
+        # Read and process the image
+        image = Image.open(file.stream)
+        # Convert to RGB if necessary
+        if image.mode != 'RGB':
+            image = image.convert('RGB')
+        
+        # Convert to numpy array
+        img_array = np.array(image)
+        
+        # Apply sepia filter
+        sepia_img_array = sepia_filter(img_array)
+        
+        # Convert back to PIL Image
+        sepia_image = Image.fromarray(sepia_img_array)
+        
+        # Convert images to base64 for display
+        def img_to_base64(img):
+            buffer = io.BytesIO()
+            img.save(buffer, format='PNG')
+            img_str = base64.b64encode(buffer.getvalue()).decode()
+            return f"data:image/png;base64,{img_str}"
+        
+        original_b64 = img_to_base64(image)
+        sepia_b64 = img_to_base64(sepia_image)
+        
+        return render_template("sepia_result.html", 
+                             original_image=original_b64, 
+                             sepia_image=sepia_b64)
+    
+    except Exception as e:
+        error_message = f"Error processing image: {str(e)}"
+        return render_template("sepia.html", error=error_message)
 
 
 if __name__ == "__main__":
